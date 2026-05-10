@@ -1,0 +1,4 @@
+batch_size: 4
+learning_rate: 0.0002
+epochs: 3
+max_seq_length: 2048

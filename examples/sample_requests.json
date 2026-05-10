@@ -1,0 +1,32 @@
+[
+  {
+    "id": "REQ001",
+    "intent": "transfer_failure",
+    "priority": "Medium",
+    "message": "Tôi thực hiện chuyển khoản 2 triệu đồng vào sáng nay lúc 9h, tài khoản đã bị trừ tiền nhưng người nhận vẫn chưa nhận được. Mã giao dịch là 123456."
+  },
+  {
+    "id": "REQ002",
+    "intent": "card_not_received",
+    "priority": "Low",
+    "message": "Tôi đã đăng ký làm thẻ ATM mới cách đây 2 tuần tại chi nhánh Quận 5, nhưng đến nay vẫn chưa thấy thẻ được gửi về nhà. Cho tôi hỏi cách kiểm tra tình trạng thẻ?"
+  },
+  {
+    "id": "REQ003",
+    "intent": "blocked_account",
+    "priority": "High",
+    "message": "Tài khoản của tôi bỗng nhiên bị khóa sau khi tôi đăng nhập sai mật khẩu 3 lần trên app. Tôi cần mở khóa gấp để thanh toán hóa đơn điện nước."
+  },
+  {
+    "id": "REQ004",
+    "intent": "refund_request",
+    "priority": "Medium",
+    "message": "Hôm qua tôi quẹt thẻ tại siêu thị 500.000 VNĐ, máy POS báo lỗi giao dịch không thành công nhưng tin nhắn điện thoại lại báo trừ tiền. Tôi muốn yêu cầu hoàn tiền lại."
+  },
+  {
+    "id": "REQ005",
+    "intent": "fraud_alert",
+    "priority": "High",
+    "message": "Có người vừa gọi điện xưng là nhân viên ngân hàng yêu cầu tôi cung cấp mã OTP. Tôi nghi ngờ đây là hành vi lừa đảo, hãy hỗ trợ tôi bảo mật tài khoản."
+  }
+]

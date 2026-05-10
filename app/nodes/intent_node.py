@@ -1,11 +1,15 @@
-from app.core.schemas import NodeOutput
+from app.core.settings import settings
+from app.nodes.inference import IntentClassification
 
 class IntentNode:
-    def process(self, message: str) -> str:
+    def __init__(self):
+        # Khởi tạo mô hình bằng interface Lab 2 đã viết [cite: 255, 259]
+        # Điều này nạp Tokenizer và Checkpoint vào GPU
+        self.classifier = IntentClassification(settings.INTENT_MODEL_CONFIG)
 
-        message_lower = message.lower()
-        if "mất thẻ" in message_lower or "khóa thẻ" in message_lower:
-            return "card_lost"
-        if "chuyển tiền" in message_lower or "không nhận được tiền" in message_lower:
-            return "transfer_issue"
-        return "general_inquiry"
+    def process(self, message: str) -> str:
+        # Gọi phương thức __call__ để dự đoán nhãn [cite: 256, 260-262]
+        # Nhãn trả về sẽ là các class từ BANKING77 (ví dụ: 'card_lost')
+        predicted_intent = self.classifier(message)
+        
+        return predicted_intent

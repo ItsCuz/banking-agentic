@@ -1,6 +1,5 @@
 class PriorityNode:
     def process(self, message: str, intent: str) -> str:
-        # Logic đơn giản dựa trên từ khóa và Intent
         high_priority_intents = ["card_lost", "account_blocked"]
         urgent_keywords = ["khẩn cấp", "bị lừa", "mất tiền"]
         
