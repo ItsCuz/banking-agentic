@@ -4,6 +4,7 @@ This repository combines the requirements of two labs:
 
 - **Project 2:** fine-tune an intent detection model on a sampled BANKING77 subset with Unsloth.
 - **Project 3:** build a Banking AI-Agent workflow with intent detection, priority detection, policy retrieval, response drafting, validation, and routing/escalation.
+- **Project 4:** deploy the system as a REST + gRPC microservice application with Docker Compose.
 
 ## Project Structure
 
@@ -38,6 +39,23 @@ banking-agentic
 |   |-- test.csv
 |   `-- label_mapping.json
 |-- examples/sample_requests.json
+|-- intent_service
+|   |-- intent_service.proto
+|   |-- intent_service_pb2.py
+|   |-- intent_service_pb2_grpc.py
+|   |-- intent_classifier.py
+|   |-- server.py
+|   |-- client.py
+|   |-- Dockerfile
+|   |-- Makefile
+|   `-- requirements.txt
+|-- frontend
+|   |-- interface.py
+|   |-- Dockerfile
+|   `-- requirements.txt
+|-- Dockerfile
+|-- docker-compose.yml
+|-- requirements-api.txt
 |-- train.sh
 |-- inference.sh
 |-- run.py
@@ -151,10 +169,109 @@ http://localhost:8000
 API example:
 
 ```bash
-curl -X POST http://localhost:8000/chat ^
+curl -X POST http://localhost:8000/run-agent ^
   -H "Content-Type: application/json" ^
   -d "{\"message\":\"Someone asked me for my OTP and I suspect fraud.\"}"
 ```
+
+## Lab 4: REST, gRPC, Docker, Docker Compose
+
+The Lab 4 deployment separates the prototype into services:
+
+- `api-gateway`: FastAPI REST gateway. It exposes `/health`, `/config`, and `/run-agent`.
+- `intent-service`: independent gRPC service for intent recognition.
+- `ollama`: HTTP LLM server used by the response drafting node.
+- `frontend`: Streamlit interface for user interaction.
+
+Runtime communication:
+
+```text
+Frontend -> API Gateway /run-agent
+API Gateway -> Intent Service via gRPC
+API Gateway -> Ollama /api/generate via HTTP
+API Gateway -> priority, policy, validation, routing nodes locally
+```
+
+### Generate gRPC Code
+
+The generated files are already committed, but they can be regenerated from the proto file:
+
+```bash
+cd intent_service
+pip install -r requirements.txt
+make
+```
+
+The API Gateway has a copy of the generated bindings under `app/intent_grpc/`.
+
+### Run Intent Service Locally
+
+```bash
+cd intent_service
+pip install -r requirements.txt
+python server.py
+```
+
+Test it:
+
+```bash
+python client.py --message "Someone asked me for my OTP."
+```
+
+### Run API Gateway with gRPC Intent Service
+
+In another terminal:
+
+```bash
+set USE_GRPC_INTENT=true
+set INTENT_SERVICE_HOST=localhost
+set INTENT_SERVICE_PORT=50051
+set OLLAMA_URL=http://localhost:11434
+python run.py
+```
+
+### Docker Build
+
+Build each service:
+
+```bash
+docker build -t banking-api-gateway .
+docker build -t banking-intent-service ./intent_service
+docker build -t banking-frontend ./frontend
+```
+
+### Docker Compose
+
+Run the full system:
+
+```bash
+docker compose up --build
+```
+
+Open:
+
+```text
+API Gateway: http://localhost:8000
+Frontend: http://localhost:8501
+Intent gRPC: localhost:50051
+Ollama HTTP: http://localhost:11434
+```
+
+If the Ollama container does not already have `gpt-oss:20b`, pull the model:
+
+```bash
+docker exec -it banking-ollama ollama pull gpt-oss:20b
+```
+
+Call the gateway:
+
+```bash
+curl -X POST http://localhost:8000/run-agent ^
+  -H "Content-Type: application/json" ^
+  -d "{\"message\":\"My account is blocked after entering the wrong password.\"}"
+```
+
+The intent service mounts `./checkpoints` into the container so it can load the Lab 2 LoRA checkpoint from `checkpoints/final_model`. If ML dependencies or GPU are unavailable, it uses fallback rules for demo continuity and returns a lower confidence score.
 
 ## Demo Video
 

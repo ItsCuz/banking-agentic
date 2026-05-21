@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 
 from app.agent.orchestrator import Orchestrator
 from app.core.schemas import AgentResponse, CustomerRequest
+from app.core.settings import settings
 
 app = FastAPI(title="Banking AI Agent", version="1.0.0")
 orchestrator = Orchestrator()
@@ -10,6 +11,11 @@ orchestrator = Orchestrator()
 
 @app.post("/chat", response_model=AgentResponse)
 async def chat_endpoint(request: CustomerRequest):
+    return await run_agent_endpoint(request)
+
+
+@app.post("/run-agent", response_model=AgentResponse)
+async def run_agent_endpoint(request: CustomerRequest):
     routing, trace = orchestrator.run_workflow(request.message)
     prefix = {
         "send_reply": "SEND",
@@ -22,6 +28,18 @@ async def chat_endpoint(request: CustomerRequest):
 @app.get("/health")
 async def health_check():
     return {"status": "ok", "service": "banking-ai-agent"}
+
+
+@app.get("/config")
+async def config():
+    return {
+        "ollama_url": settings.OLLAMA_URL,
+        "ollama_model": settings.MODEL_NAME,
+        "intent_service_host": settings.INTENT_SERVICE_HOST,
+        "intent_service_port": settings.INTENT_SERVICE_PORT,
+        "use_grpc_intent": settings.USE_GRPC_INTENT,
+        "intent_model_config": settings.INTENT_MODEL_CONFIG,
+    }
 
 
 @app.get("/", response_class=HTMLResponse)

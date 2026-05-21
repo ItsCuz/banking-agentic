@@ -1,0 +1,72 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: banking-api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      USE_GRPC_INTENT: "true"
+      INTENT_SERVICE_HOST: intent-service
+      INTENT_SERVICE_PORT: "50051"
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: gpt-oss:20b
+    depends_on:
+      - intent-service
+      - ollama
+    networks:
+      - public_net
+      - internal_net
+
+  intent-service:
+    build:
+      context: ./intent_service
+      dockerfile: Dockerfile
+    container_name: banking-intent-service
+    ports:
+      - "50051:50051"
+    environment:
+      GRPC_PORT: "50051"
+      INTENT_CHECKPOINT_PATH: /src/checkpoints/final_model
+      INTENT_BASE_MODEL: unsloth/llama-3-8b-bnb-4bit
+      INTENT_REQUIRE_CUDA: "false"
+    volumes:
+      - ./checkpoints:/src/checkpoints:ro
+    networks:
+      - internal_net
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: banking-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - internal_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: banking-frontend
+    ports:
+      - "8501:8501"
+    environment:
+      API_BASE_URL: http://api-gateway:8000
+    depends_on:
+      - api-gateway
+    networks:
+      - public_net
+
+networks:
+  public_net:
+    name: banking_public_net
+  internal_net:
+    name: banking_internal_net
+
+volumes:
+  ollama_data:
