@@ -1,73 +1,163 @@
-import torch
-import yaml
-from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-from peft import PeftModel
+import logging
+import re
+from pathlib import Path
+from typing import Dict
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
+logger = logging.getLogger(__name__)
+
+HAS_ML = False
+try:
+    import torch
+    from peft import PeftModel
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+    HAS_ML = True
+except ImportError:
+    logger.warning("ML dependencies are unavailable. IntentClassification will use fallback rules.")
+
+
+INTENT_LABELS = [
+    "transfer_issue",
+    "card_not_received",
+    "card_lost",
+    "account_blocked",
+    "refund_request",
+    "fraud_alert",
+    "general_inquiry",
+]
+
 
 class IntentClassification:
-    def __init__(self, model_path_config: str):
-        """
-        Khởi tạo mô hình Intent Classification sử dụng Llama-3-8B và LoRA Adapter.
-        """
-        # 1. Đọc file cấu hình hệ thống
+    def __init__(self, model_path):
+        self.config_path = Path(model_path)
+        self.config: Dict = self._load_config(self.config_path)
+        self.checkpoint_path = Path(self.config.get("checkpoint_path", "checkpoints/final_model"))
+        self.base_model_name = self.config.get("base_model_name", "unsloth/llama-3-8b-bnb-4bit")
+        self.max_new_tokens = int(self.config.get("max_new_tokens", 12))
+        self.fallback_mode = True
+        self.tokenizer = None
+        self.model = None
+
+        if not HAS_ML:
+            return
+
+        if self.config.get("require_cuda", False) and not torch.cuda.is_available():
+            logger.warning("CUDA is required by config but unavailable. Using fallback rules.")
+            return
+
         try:
-            with open(model_path_config, 'r') as f:
-                cfg = yaml.safe_load(f)
-        except FileNotFoundError:
-            raise Exception(f"Không tìm thấy file cấu hình tại: {model_path_config}")
+            quantization_config = None
+            if self.config.get("load_in_4bit", True):
+                quantization_config = BitsAndBytesConfig(
+                    load_in_4bit=True,
+                    bnb_4bit_compute_dtype=torch.float16,
+                    bnb_4bit_quant_type="nf4",
+                    bnb_4bit_use_double_quant=True,
+                )
 
-        self.adapter_path = cfg['checkpoint_path']
-        # Tên mô hình nền (Base Model) đã dùng để tinh chỉnh
-        self.base_model_name = "unsloth/llama-3-8b-instruct-bnb-4bit"
-
-        print(f"🔄 [System] Khởi tạo Hybrid Node: Đang nạp mô hình nền {self.base_model_name}...")
-
-        # 2. Cấu hình Quantization (NF4) để tối ưu hóa VRAM
-        bnb_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.float16,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_use_double_quant=True,
-        )
-
-        # 3. Nạp Tokenizer từ thư mục Adapter
-        self.tokenizer = AutoTokenizer.from_pretrained(self.adapter_path)
-
-        # 4. Nạp Base Model với hỗ trợ tăng tốc phần cứng (CUDA)
-        base_model = AutoModelForCausalLM.from_pretrained(
-            self.base_model_name,
-            quantization_config=bnb_config,
-            device_map="auto",
-            trust_remote_code=True
-        )
-
-        # 5. Tích hợp LoRA Adapter vào mô hình nền
-        print(f"➕ [System] Đang tích hợp LoRA Adapter từ {self.adapter_path}...")
-        self.model = PeftModel.from_pretrained(base_model, self.adapter_path)
-        
-        # Đưa mô hình về chế độ dự đoán (Evaluation)
-        self.model.eval()
-        print("✅ [System] Intent Classification Node đã sẵn sàng hoạt động tại Local.")
-
-    def __call__(self, message: str) -> str:
-        """
-        Xử lý tin nhắn đầu vào và trả về nhãn Intent tương ứng.
-        """
-        # Chuẩn bị input (Sử dụng Template nếu cần thiết)
-        inputs = self.tokenizer([message], return_tensors="pt").to("cuda")
-
-        # Thực hiện suy luận không tính đạo hàm để tiết kiệm tài nguyên
-        with torch.no_grad():
-            outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=12,  # Intent thường ngắn nên giới hạn token để tăng tốc
-                temperature=0.1,    # Độ ổn định cao, tránh sinh nội dung ngẫu nhiên
-                pad_token_id=self.tokenizer.eos_token_id
+            self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint_path)
+            base_model = AutoModelForCausalLM.from_pretrained(
+                self.base_model_name,
+                quantization_config=quantization_config,
+                device_map="auto",
+                trust_remote_code=True,
             )
+            self.model = PeftModel.from_pretrained(base_model, self.checkpoint_path)
+            self.model.eval()
+            self.fallback_mode = False
+        except Exception as exc:
+            logger.warning("Could not load intent checkpoint. Using fallback rules. Error: %s", exc)
+            self.fallback_mode = True
 
-        # Giải mã và cắt bỏ phần prompt gốc, chỉ lấy phần nhãn vừa sinh ra
-        input_len = inputs['input_ids'].shape[1]
-        decoded_output = self.tokenizer.decode(outputs[0][input_len:], skip_special_tokens=True)
-        
-        # Làm sạch kết quả trả về
-        predicted_intent = decoded_output.strip().split('\n')[0]
-        return predicted_intent
+    def __call__(self, message):
+        if self.fallback_mode:
+            return self._predict_fallback(message)
+
+        prompt = self._build_prompt(message)
+        try:
+            inputs = self.tokenizer([prompt], return_tensors="pt").to(self.model.device)
+            with torch.no_grad():
+                outputs = self.model.generate(
+                    **inputs,
+                    max_new_tokens=self.max_new_tokens,
+                    do_sample=False,
+                    temperature=0.0,
+                    pad_token_id=self.tokenizer.eos_token_id,
+                )
+            input_len = inputs["input_ids"].shape[1]
+            decoded = self.tokenizer.decode(outputs[0][input_len:], skip_special_tokens=True)
+            return self._normalize_label(decoded)
+        except Exception as exc:
+            logger.warning("Intent inference failed. Using fallback rules. Error: %s", exc)
+            return self._predict_fallback(message)
+
+    def _load_config(self, config_path: Path) -> Dict:
+        try:
+            with config_path.open("r", encoding="utf-8") as file:
+                if yaml is not None:
+                    return yaml.safe_load(file) or {}
+                return self._read_simple_yaml(file.read())
+        except FileNotFoundError:
+            logger.warning("Inference config not found at %s. Defaults will be used.", config_path)
+            return {}
+
+    def _read_simple_yaml(self, content: str) -> Dict:
+        values = {}
+        for line in content.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or ":" not in line:
+                continue
+            key, value = line.split(":", 1)
+            value = value.strip().strip('"').strip("'")
+            if value.lower() in {"true", "false"}:
+                values[key.strip()] = value.lower() == "true"
+            else:
+                values[key.strip()] = value
+        return values
+
+    def _build_prompt(self, message: str) -> str:
+        labels = ", ".join(INTENT_LABELS)
+        return (
+            "Classify the banking customer message into exactly one intent label.\n"
+            f"Allowed labels: {labels}\n"
+            f"Message: {message}\n"
+            "Intent:"
+        )
+
+    def _normalize_label(self, raw_label: str) -> str:
+        text = raw_label.strip().lower()
+        for label in INTENT_LABELS:
+            if label in text:
+                return label
+
+        cleaned = re.sub(r"[^a-z0-9_]+", "_", text).strip("_")
+        aliases = {
+            "transfer_failure": "transfer_issue",
+            "cash_withdrawal": "general_inquiry",
+            "blocked_account": "account_blocked",
+            "card_arrival": "card_not_received",
+        }
+        return aliases.get(cleaned, "general_inquiry")
+
+    def _predict_fallback(self, message: str) -> str:
+        msg = message.lower()
+
+        if any(k in msg for k in ["otp", "fraud", "scam", "lừa đảo", "mao danh", "mạo danh", "hacker", "mất tiền"]):
+            return "fraud_alert"
+        if any(k in msg for k in ["lost card", "stolen card", "mất thẻ", "khóa thẻ", "nuốt thẻ"]):
+            return "card_lost"
+        if any(k in msg for k in ["not received", "not arrived", "chưa nhận thẻ", "không nhận được thẻ", "card delivery"]):
+            return "card_not_received"
+        if any(k in msg for k in ["blocked", "bị khóa", "khóa tài khoản", "password", "mật khẩu", "login"]):
+            return "account_blocked"
+        if any(k in msg for k in ["refund", "reversal", "withdrawal failed", "deducted amount", "hoàn tiền", "pos", "trả lại tiền"]):
+            return "refund_request"
+        if any(k in msg for k in ["transfer", "chuyển khoản", "chuyển tiền", "bị trừ tiền", "transaction"]):
+            return "transfer_issue"
+
+        return "general_inquiry"

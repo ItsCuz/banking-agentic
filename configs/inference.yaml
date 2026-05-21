@@ -1,1 +1,5 @@
-checkpoint_path: "checkpoints/final_model"
+checkpoint_path: checkpoints/final_model
+base_model_name: unsloth/llama-3-8b-bnb-4bit
+load_in_4bit: true
+require_cuda: false
+max_new_tokens: 12

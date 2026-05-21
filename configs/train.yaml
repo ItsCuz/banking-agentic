@@ -1,4 +1,38 @@
-batch_size: 4
-learning_rate: 0.0002
-epochs: 3
+dataset_name: PolyAI/banking77
+selected_intents:
+  - transfer_not_received
+  - card_arrival
+  - cash_withdrawal
+  - cash_withdrawal_card
+  - cash_withdrawal_pending
+  - cash_withdrawal_reverted
+  - beneficiary_not_verified
+label_aliases:
+  transfer_not_received: transfer_issue
+  card_arrival: card_not_received
+  cash_withdrawal: refund_request
+  cash_withdrawal_card: card_lost
+  cash_withdrawal_pending: transfer_issue
+  cash_withdrawal_reverted: refund_request
+  beneficiary_not_verified: transfer_issue
+sample_per_intent: 120
+test_size: 0.2
+random_state: 42
+
+base_model_name: unsloth/llama-3-8b-bnb-4bit
+output_dir: checkpoints/final_model
 max_seq_length: 2048
+batch_size: 4
+gradient_accumulation_steps: 4
+learning_rate: 0.0002
+optimizer: adamw_8bit
+epochs: 3
+max_steps: -1
+lora_r: 16
+lora_alpha: 16
+lora_dropout: 0.0
+target_modules:
+  - q_proj
+  - k_proj
+  - v_proj
+  - o_proj

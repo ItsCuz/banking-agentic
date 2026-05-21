@@ -1,0 +1,8 @@
+text,label,label_id
+I transferred money this morning and the receiver still has not received it.,transfer_issue,0
+My card should have arrived last week but I still have not received it.,card_not_received,1
+I cannot withdraw cash from the ATM even though my balance is enough.,refund_request,2
+The ATM kept my card when I tried to withdraw money.,card_lost,3
+My cash withdrawal is still pending in the app.,transfer_issue,0
+The ATM transaction was reversed but my balance has not updated.,refund_request,2
+The app says my beneficiary is not verified for a transfer.,transfer_issue,0

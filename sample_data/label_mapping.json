@@ -1,0 +1,6 @@
+{
+  "transfer_issue": 0,
+  "card_not_received": 1,
+  "refund_request": 2,
+  "card_lost": 3
+}

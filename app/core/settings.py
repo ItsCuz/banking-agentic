@@ -1,10 +1,17 @@
 import os
+from pathlib import Path
+
 
 class Settings:
-    # Thay URL này bằng URL từ Pinggy của bạn
-    OLLAMA_URL = "http://your-pinggy-url.a.free.pinggy.link" 
-    MODEL_NAME = "gpt-oss:20b"
-    # Đường dẫn đến checkpoint Lab 2 (nếu có)
-    INTENT_MODEL_CONFIG = "configs/inference.yaml"
+    ROOT_DIR = Path(__file__).resolve().parents[2]
+
+    OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434").rstrip("/")
+    MODEL_NAME = os.getenv("OLLAMA_MODEL", "gpt-oss:20b")
+    INTENT_MODEL_CONFIG = os.getenv(
+        "INTENT_MODEL_CONFIG",
+        str(ROOT_DIR / "configs" / "inference.yaml"),
+    )
+    OLLAMA_TIMEOUT_SECONDS = int(os.getenv("OLLAMA_TIMEOUT_SECONDS", "30"))
+
 
 settings = Settings()

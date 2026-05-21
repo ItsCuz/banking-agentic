@@ -1,0 +1,4 @@
+text,label,label_id
+My bank transfer was debited but the recipient did not get the money.,transfer_issue,0
+I ordered a new card and it has not arrived at my address.,card_not_received,1
+The ATM withdrawal failed but I am worried about the deducted amount.,refund_request,2

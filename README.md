@@ -1,37 +1,165 @@
-# Banking Agentic System - Hybrid Edge-Cloud LLM Architecture
+# Banking Intent + AI-Agent Workflow
 
-## Tổng quan dự án
-Dự án tập trung vào việc xây dựng một trợ lý ngân hàng thông minh (Banking Agent) ứng dụng Multi-modal LLMs. Hệ thống được thiết kế theo kiến trúc **Hybrid (Lai)** nhằm tối ưu hóa tài nguyên phần cứng và tốc độ phản hồi:
-- **Local Node**: Chạy trực tiếp trên máy trạm (Workstation), chịu trách nhiệm điều phối (Orchestration) và phân loại ý định (Intent Classification).
-- **Cloud Node**: Tận dụng sức mạnh tính toán của Google Colab để vận hành mô hình Drafting LLM quy mô lớn, phục vụ việc sinh phản hồi chi tiết.
+This repository combines the requirements of two labs:
 
-## Kiến trúc hệ thống
-Hệ thống bao gồm 3 thành phần chính hoạt động phối hợp:
-1. **Intent Classification (Local)**: Sử dụng mô hình **Llama-3-8B** được tinh chỉnh qua kỹ thuật **LoRA** và tối ưu hóa bằng **4-bit Quantization**. Việc chạy local giúp nhận diện yêu cầu khách hàng với độ trễ cực thấp (< 0.5s).
-2. **Drafting Node (Cloud)**: Kết nối API tới môi trường Google Colab để xử lý các truy vấn phức tạp, đòi hỏi khả năng suy luận mạnh mẽ của các mô hình LLM chuyên dụng.
-3. **Orchestrator**: Thành phần trung tâm điều phối dữ liệu giữa Local và Cloud, đảm bảo tính nhất quán của hội thoại.
+- **Project 2:** fine-tune an intent detection model on a sampled BANKING77 subset with Unsloth.
+- **Project 3:** build a Banking AI-Agent workflow with intent detection, priority detection, policy retrieval, response drafting, validation, and routing/escalation.
 
-## Hướng dẫn cài đặt và khởi chạy
+## Project Structure
 
-### 1. Chuẩn bị môi trường Local
-Yêu cầu máy trạm có hỗ trợ GPU NVIDIA (Kiến trúc Pascal trở lên) để đạt hiệu năng tốt nhất.
+```text
+banking-agentic
+|-- app
+|   |-- agent/orchestrator.py
+|   |-- clients/base.py
+|   |-- clients/ollama_client.py
+|   |-- core/settings.py
+|   |-- core/schemas.py
+|   |-- data/policies.py
+|   |-- main.py
+|   `-- nodes
+|       |-- intent_node.py
+|       |-- inference.py
+|       |-- priority_node.py
+|       |-- policy_node.py
+|       |-- draft_node.py
+|       |-- validation_node.py
+|       `-- router_node.py
+|-- scripts
+|   |-- preprocess_data.py
+|   |-- train.py
+|   |-- evaluate.py
+|   `-- inference.py
+|-- configs
+|   |-- train.yaml
+|   `-- inference.yaml
+|-- sample_data
+|   |-- train.csv
+|   |-- test.csv
+|   `-- label_mapping.json
+|-- examples/sample_requests.json
+|-- train.sh
+|-- inference.sh
+|-- run.py
+|-- requirements.txt
+`-- README.md
+```
+
+## Lab 2: Intent Detection
+
+The standalone inference interface is implemented in `app/nodes/inference.py`:
+
+```python
+class IntentClassification:
+    def __init__(self, model_path):
+        ...
+
+    def __call__(self, message):
+        return predicted_label
+```
+
+`model_path` points to `configs/inference.yaml`, which contains the checkpoint path and model loading settings.
+
+### Data Preparation
 
 ```bash
-# Khởi tạo môi trường ảo
-python -m venv venv
-source venv/bin/activate  # Hoặc .\venv\Scripts\activate trên Windows
+pip install -r requirements.txt
+python scripts/preprocess_data.py --config configs/train.yaml
+```
 
-# Cài đặt các thư viện lõi
+This loads BANKING77, normalizes text, maps labels, samples selected intents, and writes:
+
+- `sample_data/train.csv`
+- `sample_data/test.csv`
+- `sample_data/label_mapping.json`
+
+### Training with Unsloth
+
+Run training in a GPU environment such as Google Colab or Kaggle:
+
+```bash
+python scripts/train.py --config configs/train.yaml --train-file sample_data/train.csv
+```
+
+Main hyperparameters are documented in `configs/train.yaml`:
+
+- batch size: `4`
+- learning rate: `0.0002`
+- optimizer: `adamw_8bit`
+- epochs: `3`
+- max sequence length: `2048`
+- LoRA rank/alpha/dropout: `16 / 16 / 0.0`
+
+The checkpoint is saved to `checkpoints/final_model`.
+
+### Standalone Inference
+
+```bash
+python scripts/inference.py --model-path configs/inference.yaml --message "My transfer was debited but the receiver did not get the money."
+```
+
+If GPU/model dependencies are unavailable, the class falls back to deterministic banking keyword rules so the demo remains runnable.
+
+### Test Accuracy
+
+```bash
+python scripts/evaluate.py --model-path configs/inference.yaml --test-file sample_data/test.csv
+```
+
+The script prints each prediction and the final accuracy on the independent test file.
+
+## Lab 3: Banking AI-Agent
+
+The workflow is controlled by `app/agent/orchestrator.py` and runs these nodes in order:
+
+1. Intent Detection Node
+2. Priority or Risk Detection Node
+3. Policy Retrieval Node
+4. Response Drafting Node
+5. Validation Node
+6. Router/Escalation Node
+
+The API returns both the final response and a full trace of every node output.
+
+## Run the Agent
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 2. Cấu hình Cloud API
-Đảm bảo đã chạy file Notebook trên Google Colab để mở cổng API. Sau đó cập nhật URL API vào file cấu hình:
-configs/inference.yaml -> cloud_api_url: "https://your-colab-link.ngrok-free.app"
-
-### 3. Khởi chạy Backend
+Optional Ollama configuration:
 
 ```bash
-python -m uvicorn app.main:app --reload
+set OLLAMA_URL=http://localhost:11434
+set OLLAMA_MODEL=gpt-oss:20b
 ```
 
+Start FastAPI:
+
+```bash
+python run.py
+```
+
+Open:
+
+```text
+http://localhost:8000
+```
+
+API example:
+
+```bash
+curl -X POST http://localhost:8000/chat ^
+  -H "Content-Type: application/json" ^
+  -d "{\"message\":\"Someone asked me for my OTP and I suspect fraud.\"}"
+```
+
+## Demo Video
+
+Add the public Google Drive demo URL here before submission:
+
+```text
+Video demo: TODO
+```

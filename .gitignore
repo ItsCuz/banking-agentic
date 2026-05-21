@@ -1,1 +1,6 @@
-app/chechpoints/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+app/checkpoints/
