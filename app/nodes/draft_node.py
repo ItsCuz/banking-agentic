@@ -24,12 +24,13 @@ class DraftNode:
                 next_action=self._next_action(intent.label, priority.level),
                 source="ollama",
             )
-        except Exception:
+        except Exception as exc:
             return DraftResult(
                 reply=self._generate_simulated_reply(intent.label, policy.snippet),
                 missing_information=self._missing_information(message, intent.label),
                 next_action=self._next_action(intent.label, priority.level),
                 source="local_template_fallback",
+                error=f"{type(exc).__name__}: {exc}",
             )
 
     def _build_prompt(

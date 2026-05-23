@@ -14,7 +14,7 @@ class Settings:
         "INTENT_MODEL_CONFIG",
         str(ROOT_DIR / "configs" / "inference.yaml"),
     )
-    OLLAMA_TIMEOUT_SECONDS = int(os.getenv("OLLAMA_TIMEOUT_SECONDS", "30"))
+    OLLAMA_TIMEOUT_SECONDS = int(os.getenv("OLLAMA_TIMEOUT_SECONDS", "180"))
 
 
 settings = Settings()

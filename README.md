@@ -278,6 +278,13 @@ If the Ollama container does not already have `gpt-oss:20b`, pull the model:
 docker exec -it banking-ollama ollama pull gpt-oss:20b
 ```
 
+If response generation is served from Google Colab through Pinggy, create a local `.env` file before running Compose:
+
+```bash
+OLLAMA_URL=https://your-pinggy-link.a.free.pinggy.link
+OLLAMA_MODEL=gpt-oss:20b
+```
+
 Call the gateway:
 
 ```bash

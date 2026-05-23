@@ -28,6 +28,7 @@ class DraftResult(BaseModel):
     missing_information: List[str] = []
     next_action: str
     source: str
+    error: Optional[str] = None
 
 
 class ValidationResult(BaseModel):
