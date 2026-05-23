@@ -33,7 +33,9 @@ def main():
         ) from exc
 
     train_df = pd.read_csv(args.train_file)
-    train_df["text"] = train_df.apply(lambda row: format_prompt(row["text"], row["label"]), axis=1)
+    text_column = "message" if "message" in train_df.columns else "text"
+    label_column = "intent" if "intent" in train_df.columns else "label"
+    train_df["text"] = train_df.apply(lambda row: format_prompt(row[text_column], row[label_column]), axis=1)
     train_dataset = Dataset.from_pandas(train_df[["text"]])
 
     model, tokenizer = FastLanguageModel.from_pretrained(

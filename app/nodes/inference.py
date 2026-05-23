@@ -37,7 +37,7 @@ class IntentClassification:
         self.config_path = Path(model_path)
         self.config: Dict = self._load_config(self.config_path)
         self.checkpoint_path = Path(self.config.get("checkpoint_path", "checkpoints/final_model"))
-        self.base_model_name = self.config.get("base_model_name", "unsloth/llama-3-8b-bnb-4bit")
+        self.base_model_name = self.config.get("base_model_name", "unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit")
         self.max_new_tokens = int(self.config.get("max_new_tokens", 12))
         self.fallback_mode = True
         self.tokenizer = None
@@ -60,7 +60,7 @@ class IntentClassification:
                     bnb_4bit_use_double_quant=True,
                 )
 
-            self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint_path)
+            self.tokenizer = self._load_tokenizer()
             base_model = AutoModelForCausalLM.from_pretrained(
                 self.base_model_name,
                 quantization_config=quantization_config,
@@ -74,7 +74,23 @@ class IntentClassification:
             logger.warning("Could not load intent checkpoint. Using fallback rules. Error: %s", exc)
             self.fallback_mode = True
 
+    def _load_tokenizer(self):
+        try:
+            return AutoTokenizer.from_pretrained(self.checkpoint_path, trust_remote_code=True)
+        except Exception as exc:
+            logger.warning(
+                "Could not load tokenizer from adapter checkpoint %s. "
+                "Falling back to base model tokenizer. Error: %s",
+                self.checkpoint_path,
+                exc,
+            )
+            return AutoTokenizer.from_pretrained(self.base_model_name, trust_remote_code=True)
+
     def __call__(self, message):
+        risk_intent = self._risk_override(message)
+        if risk_intent:
+            return risk_intent
+
         if self.fallback_mode:
             return self._predict_fallback(message)
 
@@ -95,6 +111,29 @@ class IntentClassification:
         except Exception as exc:
             logger.warning("Intent inference failed. Using fallback rules. Error: %s", exc)
             return self._predict_fallback(message)
+
+    def _risk_override(self, message: str) -> str:
+        msg = message.lower()
+        risk_keywords = [
+            "otp",
+            "one-time password",
+            "verification code",
+            "pin",
+            "password",
+            "fraud",
+            "scam",
+            "phishing",
+            "suspicious caller",
+            "lừa đảo",
+            "mã otp",
+            "mã xác thực",
+            "mật khẩu",
+            "mạo danh",
+            "giả danh",
+        ]
+        if any(keyword in msg for keyword in risk_keywords):
+            return "fraud_alert"
+        return ""
 
     def _load_config(self, config_path: Path) -> Dict:
         try:

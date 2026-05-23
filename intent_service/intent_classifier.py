@@ -30,7 +30,7 @@ INTENT_LABELS = [
 class IntentClassifier:
     def __init__(self):
         self.checkpoint_path = Path(os.getenv("INTENT_CHECKPOINT_PATH", "checkpoints/final_model"))
-        self.base_model_name = os.getenv("INTENT_BASE_MODEL", "unsloth/llama-3-8b-bnb-4bit")
+        self.base_model_name = os.getenv("INTENT_BASE_MODEL", "unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit")
         self.require_cuda = os.getenv("INTENT_REQUIRE_CUDA", "false").lower() == "true"
         self.fallback_mode = True
         self.model = None
@@ -49,7 +49,7 @@ class IntentClassifier:
                 bnb_4bit_quant_type="nf4",
                 bnb_4bit_use_double_quant=True,
             )
-            self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint_path)
+            self.tokenizer = self._load_tokenizer()
             base_model = AutoModelForCausalLM.from_pretrained(
                 self.base_model_name,
                 quantization_config=quantization_config,
@@ -62,7 +62,23 @@ class IntentClassifier:
         except Exception as exc:
             logger.warning("Could not load fine-tuned checkpoint. Using fallback rules. Error: %s", exc)
 
+    def _load_tokenizer(self):
+        try:
+            return AutoTokenizer.from_pretrained(self.checkpoint_path, trust_remote_code=True)
+        except Exception as exc:
+            logger.warning(
+                "Could not load tokenizer from adapter checkpoint %s. "
+                "Falling back to base model tokenizer. Error: %s",
+                self.checkpoint_path,
+                exc,
+            )
+            return AutoTokenizer.from_pretrained(self.base_model_name, trust_remote_code=True)
+
     def predict(self, message: str):
+        risk_intent = self._risk_override(message)
+        if risk_intent:
+            return risk_intent, 0.98, "security keyword override"
+
         if self.fallback_mode:
             return self._predict_fallback(message), 0.65, "fallback keyword rules"
 
@@ -88,6 +104,29 @@ class IntentClassifier:
         except Exception as exc:
             logger.warning("Fine-tuned inference failed. Error: %s", exc)
             return self._predict_fallback(message), 0.65, "fallback keyword rules after inference error"
+
+    def _risk_override(self, message: str):
+        msg = message.lower()
+        risk_keywords = [
+            "otp",
+            "one-time password",
+            "verification code",
+            "pin",
+            "password",
+            "fraud",
+            "scam",
+            "phishing",
+            "suspicious caller",
+            "lừa đảo",
+            "mã otp",
+            "mã xác thực",
+            "mật khẩu",
+            "mạo danh",
+            "giả danh",
+        ]
+        if any(keyword in msg for keyword in risk_keywords):
+            return "fraud_alert"
+        return None
 
     def _normalize_label(self, raw_label: str) -> str:
         text = raw_label.strip().lower()

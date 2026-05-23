@@ -1,8 +1,160 @@
-text,label,label_id
-I transferred money this morning and the receiver still has not received it.,transfer_issue,0
-My card should have arrived last week but I still have not received it.,card_not_received,1
-I cannot withdraw cash from the ATM even though my balance is enough.,refund_request,2
-The ATM kept my card when I tried to withdraw money.,card_lost,3
-My cash withdrawal is still pending in the app.,transfer_issue,0
-The ATM transaction was reversed but my balance has not updated.,refund_request,2
-The app says my beneficiary is not verified for a transfer.,transfer_issue,0
+message,intent,source_intent
+"If I ordered my new card last week, how much longer should I wait to receive it?",card_not_received,card_arrival
+Where is my new card if I haven't received it yet?,card_not_received,card_arrival
+Is there a reason my new card hasn't arrived?,card_not_received,card_arrival
+Do you have a tracking number for the card I was sent?,card_not_received,card_arrival
+What is the expected delivery date for my card?,card_not_received,card_arrival
+I still haven't gotten my new card.  When will it get here?,card_not_received,card_arrival
+My card hasn't arrived in the mail yet. I ordered it two weeks ago. What can I do?,card_not_received,card_arrival
+"I've been waiting a while for my card, is there a way to know when it will arrive?",card_not_received,card_arrival
+My new card has not been delivered to my home yet. What is going on?,card_not_received,card_arrival
+Will I be able to track the card that was sent to me?,card_not_received,card_arrival
+It's been a week since you issued me a card and I still didn't get it. Should I keep waiting?,card_not_received,card_arrival
+Can you track my card for me?,card_not_received,card_arrival
+I ordered my card but it still isn't here,card_not_received,card_arrival
+I ordered my card but it hasn't been delivered yet,card_not_received,card_arrival
+Is there a way I can get my card expedited?,card_not_received,card_arrival
+How can I check on the delivery status of my card?,card_not_received,card_arrival
+When will my new card be delivered?,card_not_received,card_arrival
+Where is the tracking number for the card?,card_not_received,card_arrival
+How long should it take for my new card to arrive in them mail? What should I do if I never receive it?,card_not_received,card_arrival
+Shouldn't my new card be here by now?,card_not_received,card_arrival
+How long will it take for me to get my card?,card_not_received,card_arrival
+Why hasn't my card arrived yet?,card_not_received,card_arrival
+I would like to track the card you sent to me.,card_not_received,card_arrival
+Will I have to wait much longer for my new card to arrive?,card_not_received,card_arrival
+What's the reason my new card hasn't come?,card_not_received,card_arrival
+Is there a tracking number for the card you sent me?,card_not_received,card_arrival
+How do I track the card you sent me?,card_not_received,card_arrival
+Can the card was sen to me be tracked?,card_not_received,card_arrival
+I was expecting my new card by now.,card_not_received,card_arrival
+How long does it take for a new card to ship?,card_not_received,card_arrival
+I'm still waiting for my card that was issued a week ago. What should I do?,card_not_received,card_arrival
+Could I get tracking on the card?,card_not_received,card_arrival
+2 weeks ago I ordered my new card.  It isn't here.  What should I do?,card_not_received,card_arrival
+Have you sent out my card yet?,card_not_received,card_arrival
+I'm still waiting for my new card.,card_not_received,card_arrival
+My card hasn't shown up yet.,card_not_received,card_arrival
+"I still haven't received my card after two weeks, is it lost?",card_not_received,card_arrival
+"It's been two weeks and I haven't gotten my card, what do I do?",card_not_received,card_arrival
+why have i not got my new card?,card_not_received,card_arrival
+Is it possible to track the card you sent me?,card_not_received,card_arrival
+When will I recieve my new card?,card_not_received,card_arrival
+I haven't gotten my new card.,card_not_received,card_arrival
+My new card isn't here and it was issued a week ago.,card_not_received,card_arrival
+Am I able to track a card that has already been sent?,card_not_received,card_arrival
+"How do I know if I will get my card, or if it is lost?",card_not_received,card_arrival
+Has my card been lost in delivery?,card_not_received,card_arrival
+Is it possible for me to track the card is was mailed to me?,card_not_received,card_arrival
+Is there a way to track the new card you sent me?,card_not_received,card_arrival
+Why haven't I received my new card yet?,card_not_received,card_arrival
+I don't have my card in 1 week.  Should I be worried?,card_not_received,card_arrival
+Can you please tell me where my card is? I ordered it 2 weeks ago!,card_not_received,card_arrival
+Why has my new card still not come?,card_not_received,card_arrival
+How long does it take for me to get my new card?,card_not_received,card_arrival
+My card appears to have never arrived?,card_not_received,card_arrival
+I still haven't received my card in the mail,card_not_received,card_arrival
+Was there a way for me to get tracking for that?,card_not_received,card_arrival
+how to track the card you sent,card_not_received,card_arrival
+"I have not received my card and it's been a week, what do I do?",card_not_received,card_arrival
+I was issued a card about a week ago. why hasn't it come in yet?,card_not_received,card_arrival
+where is my new card?,card_not_received,card_arrival
+I am still waiting on my card?,card_not_received,card_arrival
+Can you tell me why I haven't received my new card?,card_not_received,card_arrival
+I haven't gotten my credit card in the mail.,card_not_received,card_arrival
+When will I get my new card?,card_not_received,card_arrival
+I need to find out where the card is that I ordered.,card_not_received,card_arrival
+Can you help me track my card?,card_not_received,card_arrival
+It's been a week since you sent my card and I still don't have it.,card_not_received,card_arrival
+My card isn't here yet.,card_not_received,card_arrival
+I'm still waiting on my new card to be delivered!,card_not_received,card_arrival
+My card still hasn't been delivered,card_not_received,card_arrival
+Is a tracking number available for the card that was just sent?,card_not_received,card_arrival
+i havent got my card,card_not_received,card_arrival
+Should I keep waiting for my card to be delivered?,card_not_received,card_arrival
+Was there a number to track that I could get?,card_not_received,card_arrival
+Could you send me and up date on the arrival of my card?,card_not_received,card_arrival
+"My card was supposed to arrive, but hasn't?",card_not_received,card_arrival
+My new card hasn't came in.,card_not_received,card_arrival
+WHAT IS THE SOLUTION OF THIS PROBLEM,card_not_received,card_arrival
+My card hasn't arrived yet. What do I do?,card_not_received,card_arrival
+My card hasn't arrived.,card_not_received,card_arrival
+How can I track my card's delivery?,card_not_received,card_arrival
+"What's go on, where is my new card?",card_not_received,card_arrival
+why hasnt my card come in yet?,card_not_received,card_arrival
+When did you send me my new card?,card_not_received,card_arrival
+"I would like to track a card sent to me, how do I do that?",card_not_received,card_arrival
+What is the expected delivery date of my card?,card_not_received,card_arrival
+How can I check on the status of my new card?,card_not_received,card_arrival
+Can I get an update on my replacement card?,card_not_received,card_arrival
+Is there a reason my new card hasn't arrived yet?,card_not_received,card_arrival
+Does the card you sent have a tracking number?,card_not_received,card_arrival
+Where is the card I ordered 2 weeks ago?,card_not_received,card_arrival
+How long does it take to recieve my new card?,card_not_received,card_arrival
+What do I do if I still have not received my new card?,card_not_received,card_arrival
+Am I able to track the card that was just sent to me?,card_not_received,card_arrival
+"My card has not been delivered yet and its been a week since I ordered it, please help",card_not_received,card_arrival
+Why have I not gotten my new card?,card_not_received,card_arrival
+How long until my new card gets here?,card_not_received,card_arrival
+Can I track the card that was just sent to me?,card_not_received,card_arrival
+I was issued a new card a week ago but still haven't received it. How long will it be until I receive it?,card_not_received,card_arrival
+Can I track the card that you sent me in the mail?,card_not_received,card_arrival
+Is there a way to track my card?,card_not_received,card_arrival
+Does the package with my card have tracking?,card_not_received,card_arrival
+Is there a way to track the delivery of my card?,card_not_received,card_arrival
+I thought I would have received my new card at this point.,card_not_received,card_arrival
+Can you tell me if I can track the card you sent me?,card_not_received,card_arrival
+Can I track my card while it is in the process of delivery?,card_not_received,card_arrival
+How do I know when my new card is going to arrive?,card_not_received,card_arrival
+I haven't received my card and am worried it is lost.,card_not_received,card_arrival
+How can I see the progress of delivery of the card that was sent?,card_not_received,card_arrival
+I need to track the card sent to me.,card_not_received,card_arrival
+Do you have info about the card on delivery?,card_not_received,card_arrival
+Is my new bank card on the way and is there a way to track it?,card_not_received,card_arrival
+can you share card tracking number?,card_not_received,card_arrival
+I have been waiting over a week. Is the card still coming?,card_not_received,card_arrival
+Can I track the card you sent to me?,card_not_received,card_arrival
+How can I periodically check the delivery of the card you sent?,card_not_received,card_arrival
+I haven't received my card.,card_not_received,card_arrival
+"A card has been sent to me, how do I track it?",card_not_received,card_arrival
+My card has not come in the mail yet.,card_not_received,card_arrival
+Is my card lost? I am still waiting for it to be delivered.,card_not_received,card_arrival
+Why haven't I gotten my new card?,card_not_received,card_arrival
+I am still waiting for my card.,card_not_received,card_arrival
+"My card still hasn't arrived after two weeks, now what?",card_not_received,card_arrival
+maximum how many days get the courier?,card_not_received,card_arrival
+I want to find out what happened to my new card?,card_not_received,card_arrival
+I'm still waiting for my card.,card_not_received,card_arrival
+Where is my credit card that was to be mailed?,card_not_received,card_arrival
+How much longer until I get my new card?,card_not_received,card_arrival
+I know I'm getting a new card but would like know when I can expect to receive it.,card_not_received,card_arrival
+Can I track when my card will be delivered?,card_not_received,card_arrival
+Can you tell me why I haven't received my new card yet?,card_not_received,card_arrival
+What is the status of my card's delivery?,card_not_received,card_arrival
+I don't have my card after 1 week. What are my next steps?,card_not_received,card_arrival
+How much longer is it going to take to get my new card?,card_not_received,card_arrival
+How long will it be to get this new card?,card_not_received,card_arrival
+What's the tracking on the card you sent?,card_not_received,card_arrival
+"I was supposed to receive my new card by now, but it hasn't came in.",card_not_received,card_arrival
+What can I do if my card still hasn't arrived after 2 weeks?,card_not_received,card_arrival
+What can I do to track the card you sent me?,card_not_received,card_arrival
+how can i track card you sent,card_not_received,card_arrival
+When will my new card arrive?,card_not_received,card_arrival
+Is there a tracking number for the card?,card_not_received,card_arrival
+How do I track the card you sent to me?,card_not_received,card_arrival
+Where is my card?,card_not_received,card_arrival
+I ordered a card and would like to know how to track the delivery progress of it.,card_not_received,card_arrival
+What's the card you sent me's tracking number?,card_not_received,card_arrival
+My card never arrived.,card_not_received,card_arrival
+"On the card that is coming, what's the tracking info?",card_not_received,card_arrival
+What's the expected wait time to recieve my new card?,card_not_received,card_arrival
+My card hasn't came in the mail yet?,card_not_received,card_arrival
+Someone called me asking for my OTP and said they are from the bank.,fraud_alert,project_support_example
+I shared my OTP with a suspicious caller and I think my account is at risk.,fraud_alert,project_support_example
+There is an unknown transaction and I suspect fraud on my card.,fraud_alert,project_support_example
+My account is blocked after I entered the wrong password three times.,account_blocked,project_support_example
+I cannot login because my account has been locked.,account_blocked,project_support_example
+The banking app says my account is temporarily blocked.,account_blocked,project_support_example
+What are your working hours?,general_inquiry,project_support_example
+How can I contact customer support?,general_inquiry,project_support_example
+I want to know the bank hotline number.,general_inquiry,project_support_example

@@ -1,6 +1,9 @@
 {
   "transfer_issue": 0,
   "card_not_received": 1,
-  "refund_request": 2,
-  "card_lost": 3
+  "card_lost": 2,
+  "account_blocked": 3,
+  "refund_request": 4,
+  "fraud_alert": 5,
+  "general_inquiry": 6
 }

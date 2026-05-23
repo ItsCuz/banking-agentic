@@ -1,18 +1,18 @@
 ---
-base_model: unsloth/llama-3-8b-bnb-4bit
+base_model: unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit
 library_name: transformers
 model_name: checkpoints
 tags:
 - generated_from_trainer
-- unsloth
 - trl
+- unsloth
 - sft
 licence: license
 ---
 
 # Model Card for checkpoints
 
-This model is a fine-tuned version of [unsloth/llama-3-8b-bnb-4bit](https://huggingface.co/unsloth/llama-3-8b-bnb-4bit).
+This model is a fine-tuned version of [unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit](https://huggingface.co/unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit).
 It has been trained using [TRL](https://github.com/huggingface/trl).
 
 ## Quick start

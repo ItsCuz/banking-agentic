@@ -11,7 +11,7 @@ st.title("Banking AI Agent")
 
 message = st.text_area(
     "Customer message",
-    value="Someone called me asking for my OTP and said they are from the bank.",
+    value="I made a bank transfer this morning, but the recipient has not received the money yet.",
     height=140,
 )
 
@@ -24,7 +24,13 @@ if st.button("Run agent", type="primary"):
             json={"message": message},
             timeout=60,
         )
-        response.raise_for_status()
+        if not response.ok:
+            st.error(f"API Gateway returned {response.status_code}")
+            try:
+                st.json(response.json())
+            except ValueError:
+                st.code(response.text)
+            st.stop()
         data = response.json()
         st.subheader("Final Output")
         st.write(data["final_output"])

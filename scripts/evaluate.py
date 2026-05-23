@@ -23,11 +23,12 @@ def main():
     with open(args.test_file, newline="", encoding="utf-8") as file:
         reader = csv.DictReader(file)
         for row in reader:
+            text = row.get("message") or row.get("text")
+            expected = row.get("intent") or row.get("label")
             total += 1
-            predicted = classifier(row["text"])
-            expected = row["label"]
+            predicted = classifier(text)
             correct += int(predicted == expected)
-            print(f"text={row['text']} | expected={expected} | predicted={predicted}")
+            print(f"text={text} | expected={expected} | predicted={predicted}")
 
     accuracy = correct / total if total else 0.0
     print(f"accuracy={accuracy:.4f} ({correct}/{total})")

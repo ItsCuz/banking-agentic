@@ -24,7 +24,12 @@ class Orchestrator:
         validation = self.validation_node.process(draft, intent, policy)
         routing = self.router_node.process(priority, validation, draft)
 
-        engine_mode = "fallback_rules" if self.intent_node.classifier.fallback_mode else "fine_tuned_unsloth_checkpoint"
+        if intent.source == "grpc_intent_service":
+            engine_mode = "grpc_intent_service"
+        elif intent.source.startswith("fallback_rules_after_grpc_error"):
+            engine_mode = "grpc_unavailable_local_fallback"
+        else:
+            engine_mode = intent.source
         trace = WorkflowTrace(
             intent=intent,
             priority=priority,

@@ -1,8 +1,10 @@
 grpcio==1.62.1
 grpcio-tools==1.62.1
 protobuf==4.25.3
+numpy<2
 torch==2.2.2
-transformers==4.39.0
-peft==0.10.0
-accelerate==0.28.0
-bitsandbytes==0.43.0
+transformers==4.46.3
+tokenizers==0.20.3
+peft==0.19.1
+accelerate==1.1.1
+bitsandbytes==0.44.1

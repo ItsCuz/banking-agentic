@@ -1,4 +1,41 @@
-text,label,label_id
-My bank transfer was debited but the recipient did not get the money.,transfer_issue,0
-I ordered a new card and it has not arrived at my address.,card_not_received,1
-The ATM withdrawal failed but I am worried about the deducted amount.,refund_request,2
+message,intent,source_intent
+How do I locate my card?,card_not_received,card_arrival
+"I still have not received my new card, I ordered over a week ago.",card_not_received,card_arrival
+I ordered a card but it has not arrived. Help please!,card_not_received,card_arrival
+Is there a way to know when my card will arrive?,card_not_received,card_arrival
+My card has not arrived yet.,card_not_received,card_arrival
+When will I get my card?,card_not_received,card_arrival
+Do you know if there is a tracking number for the new card you sent me?,card_not_received,card_arrival
+i have not received my card,card_not_received,card_arrival
+still waiting on that card,card_not_received,card_arrival
+Is it normal to have to wait over a week for my new card?,card_not_received,card_arrival
+How do I track my card?,card_not_received,card_arrival
+How long does a card delivery take?,card_not_received,card_arrival
+I still don't have my card after 2 weeks.  What should I do?,card_not_received,card_arrival
+still waiting on my new card,card_not_received,card_arrival
+I am still waiting for my card after 1 week.  Is this ok?,card_not_received,card_arrival
+"I have been waiting longer than expected for my bank card, could you provide information on when it will arrive?",card_not_received,card_arrival
+I've been waiting longer than expected for my card.,card_not_received,card_arrival
+Why hasn't my card been delivered?,card_not_received,card_arrival
+Where is my new card? I have been waiting a week!,card_not_received,card_arrival
+My card still hasn't arrived after 2 weeks. Is it lost?,card_not_received,card_arrival
+"I did not get my card yet, is it lost?",card_not_received,card_arrival
+Status of the card I ordered.,card_not_received,card_arrival
+How long should my new card take to arrive?,card_not_received,card_arrival
+I ordered my card 2 weeks ago and it still isn't here? What do I do?,card_not_received,card_arrival
+"My card has not arrived yet, where is it?",card_not_received,card_arrival
+What is the tracking number for my card that was mailed?,card_not_received,card_arrival
+I think something went wrong with my card delivery as I haven't received it yet.,card_not_received,card_arrival
+"I'm still waiting for delivery of my new card, why is it taking so long?",card_not_received,card_arrival
+"I ordered a card a week ago, and it's still not here. What do I do?",card_not_received,card_arrival
+i want to track the card you sent,card_not_received,card_arrival
+My card hasn't arrived yet.,card_not_received,card_arrival
+I was expecting my new card and am wondering why I haven't received it yet?,card_not_received,card_arrival
+How do I know when my card will arrive?,card_not_received,card_arrival
+I'm still waiting on my card to be delivered.,card_not_received,card_arrival
+Does the card you sent have a way to track to it?,card_not_received,card_arrival
+I ordered a card and I still haven't received it. It's been two weeks. What can I do?,card_not_received,card_arrival
+"I'm starting to think my card is lost because it still hasn't arrived, can you help?",card_not_received,card_arrival
+Is there tracking info available?,card_not_received,card_arrival
+What is the tracking number for the card you sent?,card_not_received,card_arrival
+Where is the tracking number for the card you sent me?,card_not_received,card_arrival

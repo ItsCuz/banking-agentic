@@ -99,13 +99,28 @@ Run training in a GPU environment such as Google Colab or Kaggle:
 python scripts/train.py --config configs/train.yaml --train-file sample_data/train.csv
 ```
 
+For the recommended lightweight Colab workflow, use:
+
+```text
+scripts/colab_finetune_light_intent.py
+```
+
+Copy its sections into Google Colab and run them from top to bottom. It fine-tunes:
+
+```text
+unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit
+```
+
+This model is much lighter than Llama-3-8B and is better suited for RTX 4050-class GPUs.
+
 Main hyperparameters are documented in `configs/train.yaml`:
 
-- batch size: `4`
+- base model: `unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit`
+- batch size: `8`
 - learning rate: `0.0002`
 - optimizer: `adamw_8bit`
 - epochs: `3`
-- max sequence length: `2048`
+- max sequence length: `512`
 - LoRA rank/alpha/dropout: `16 / 16 / 0.0`
 
 The checkpoint is saved to `checkpoints/final_model`.
@@ -272,6 +287,14 @@ curl -X POST http://localhost:8000/run-agent ^
 ```
 
 The intent service mounts `./checkpoints` into the container so it can load the Lab 2 LoRA checkpoint from `checkpoints/final_model`. If ML dependencies or GPU are unavailable, it uses fallback rules for demo continuity and returns a lower confidence score.
+
+The default intent base model for Lab 4 is:
+
+```text
+unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit
+```
+
+After fine-tuning in Colab, download `qwen_light_intent_artifacts.zip`, then copy the generated `checkpoints/`, `configs/`, and `sample_data/` folders into this project before rebuilding Docker Compose.
 
 ## Demo Video
 

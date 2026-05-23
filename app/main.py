@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi import HTTPException
 from fastapi.responses import HTMLResponse
 
 from app.agent.orchestrator import Orchestrator
@@ -16,13 +17,23 @@ async def chat_endpoint(request: CustomerRequest):
 
 @app.post("/run-agent", response_model=AgentResponse)
 async def run_agent_endpoint(request: CustomerRequest):
-    routing, trace = orchestrator.run_workflow(request.message)
-    prefix = {
-        "send_reply": "SEND",
-        "ask_for_more_information": "ASK_MORE",
-        "escalate_to_human": "ESCALATE",
-    }.get(routing.decision, routing.decision.upper())
-    return AgentResponse(final_output=f"[{prefix}] {trace.draft.reply}", trace=trace.model_dump())
+    try:
+        routing, trace = orchestrator.run_workflow(request.message)
+        prefix = {
+            "send_reply": "SEND",
+            "ask_for_more_information": "ASK_MORE",
+            "escalate_to_human": "ESCALATE",
+        }.get(routing.decision, routing.decision.upper())
+        return AgentResponse(final_output=f"[{prefix}] {trace.draft.reply}", trace=trace.model_dump())
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": type(exc).__name__,
+                "message": str(exc),
+                "hint": "Check api-gateway logs and dependent services: intent-service and Ollama.",
+            },
+        ) from exc
 
 
 @app.get("/health")

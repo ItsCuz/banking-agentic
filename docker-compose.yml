@@ -31,12 +31,14 @@ services:
     environment:
       GRPC_PORT: "50051"
       INTENT_CHECKPOINT_PATH: /src/checkpoints/final_model
-      INTENT_BASE_MODEL: unsloth/llama-3-8b-bnb-4bit
-      INTENT_REQUIRE_CUDA: "false"
+      INTENT_BASE_MODEL: unsloth/Qwen2.5-1.5B-Instruct-bnb-4bit
+      INTENT_REQUIRE_CUDA: "true"
     volumes:
       - ./checkpoints:/src/checkpoints:ro
     networks:
       - internal_net
+    gpus: all
+    
 
   ollama:
     image: ollama/ollama:latest
