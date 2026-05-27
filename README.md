@@ -242,6 +242,4 @@ The Lab 4 video demonstration should show:
 
 Video demo:
 
-```text
-TODO: add public Google Drive link
-```
+[Google Drive demo video](https://drive.google.com/file/d/1m-rsIFH_I-teaRP-LyGfTstxCTPe3fuW/view?usp=sharing)

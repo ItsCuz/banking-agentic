@@ -10,7 +10,7 @@ services:
       USE_GRPC_INTENT: "true"
       INTENT_SERVICE_HOST: intent-service
       INTENT_SERVICE_PORT: "50051"
-      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_URL: ${OLLAMA_URL:-https://ttslu-35-186-145-54.run.pinggy-free.link}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-gpt-oss:20b}
     depends_on:
       - intent-service
